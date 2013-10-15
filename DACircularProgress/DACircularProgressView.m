@@ -169,7 +169,6 @@
 {
     [self.layer removeAnimationForKey:@"indeterminateAnimation"];
     [self.circularProgressLayer removeAnimationForKey:@"progress"];
-    [self.circularProgressLayer removeAnimationForKey:@"marquee"];
     
     if (self.updateTimer && progress > 0.f) {
         [self.updateTimer invalidate];
