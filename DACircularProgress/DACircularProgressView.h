@@ -19,6 +19,12 @@
 @property(nonatomic) CGFloat indeterminateDuration UI_APPEARANCE_SELECTOR;
 @property(nonatomic) NSInteger indeterminate UI_APPEARANCE_SELECTOR; // Can not use BOOL with UI_APPEARANCE_SELECTOR :-(
 
-- (void)setProgress:(CGFloat)progress animated:(BOOL)animated;
+@property (nonatomic, assign) NSInteger marqueeAnimation;
+@property (nonatomic, assign) CGFloat marqueeCurrentAngle;
+@property (nonatomic, assign) CGFloat marqueeIncrementAngle;
+@property (nonatomic, assign) CGFloat marqueeAnimateDuration;
 
+- (void)setProgress:(CGFloat)progress animated:(BOOL)animated;
+- (void)startMarqueeAnimation;
+- (void)stopMarqueeAnimation;
 @end

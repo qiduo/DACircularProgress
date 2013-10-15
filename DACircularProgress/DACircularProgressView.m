@@ -18,6 +18,10 @@
 @property(nonatomic) CGFloat thicknessRatio;
 @property(nonatomic) CGFloat progress;
 
+@property (nonatomic, assign) CGFloat marqueeCurrentAngle;
+@property (nonatomic, assign) CGFloat marqueeIncrementAngle;
+@property (nonatomic, assign) NSInteger marqueeAnimation;
+
 @end
 
 @implementation DACircularProgressLayer
@@ -30,7 +34,8 @@
 
 + (BOOL)needsDisplayForKey:(NSString *)key
 {
-    return [key isEqualToString:@"progress"] ? YES : [super needsDisplayForKey:key];
+    BOOL redisplay = [key isEqualToString:@"progress"];
+    return redisplay ? YES : [super needsDisplayForKey:key];
 }
 
 - (void)drawInContext:(CGContextRef)context
@@ -50,6 +55,17 @@
     CGContextAddPath(context, trackPath);
     CGContextFillPath(context);
     CGPathRelease(trackPath);
+    
+    if (progress == 0.f && self.marqueeAnimation) {
+        CGContextSetFillColorWithColor(context, self.progressTintColor.CGColor);
+        CGMutablePathRef progressPath = CGPathCreateMutable();
+        CGPathMoveToPoint(progressPath, NULL, centerPoint.x, centerPoint.y);
+        CGPathAddArc(progressPath, NULL, centerPoint.x, centerPoint.y, radius, self.marqueeCurrentAngle, self.marqueeCurrentAngle + self.marqueeIncrementAngle, NO);
+        CGPathCloseSubpath(progressPath);
+        CGContextAddPath(context, progressPath);
+        CGContextFillPath(context);
+        CGPathRelease(progressPath);
+    }
     
     if (progress > 0.0f)
     {
@@ -88,6 +104,7 @@
 
 @interface DACircularProgressView ()
 
+@property (nonatomic, strong) NSTimer *updateTimer;
 @end
 
 @implementation DACircularProgressView
@@ -120,7 +137,14 @@
 
 - (id)init
 {
-    return [super initWithFrame:CGRectMake(0.0f, 0.0f, 40.0f, 40.0f)];
+    self = [super initWithFrame:CGRectMake(0.0f, 0.0f, 40.0f, 40.0f)];
+    if (self) {
+        self.marqueeAnimation = 0;
+        self.marqueeIncrementAngle = M_PI / 5;
+        self.marqueeAnimateDuration = 0.1f;
+        self.marqueeCurrentAngle = 0.f;
+    }
+    return self;
 }
 
 - (void)didMoveToWindow
@@ -145,7 +169,13 @@
 {
     [self.layer removeAnimationForKey:@"indeterminateAnimation"];
     [self.circularProgressLayer removeAnimationForKey:@"progress"];
+    [self.circularProgressLayer removeAnimationForKey:@"marquee"];
     
+    if (self.updateTimer && progress > 0.f) {
+        [self.updateTimer invalidate];
+        self.updateTimer = nil;
+        self.marqueeAnimation = 0;
+    }
     CGFloat pinnedProgress = MIN(MAX(progress, 0.0f), 1.0f);
     if (animated)
     {
@@ -161,6 +191,55 @@
         [self.circularProgressLayer setNeedsDisplay];
     }
     self.circularProgressLayer.progress = pinnedProgress;
+}
+
+- (void)startMarqueeAnimation
+{
+    self.marqueeAnimation = 1;
+    self.updateTimer = [NSTimer scheduledTimerWithTimeInterval:self.marqueeAnimateDuration target:self selector:@selector(updateMarqueeAngle) userInfo:nil repeats:YES];
+    [self.updateTimer fire];
+}
+
+- (void)stopMarqueeAnimation
+{
+    if (self.updateTimer) {
+        [self.updateTimer invalidate];
+        self.marqueeAnimation = 0;
+    }
+}
+
+- (void)updateMarqueeAngle
+{
+    CGFloat angle = self.marqueeCurrentAngle + self.marqueeIncrementAngle;
+    if (angle >= M_PI * 2) {
+        angle -= M_PI * 2;
+    }
+    CGFloat resetValue = M_PI * 2;
+    angle = angle >= resetValue ? angle - resetValue : angle;
+    self.marqueeCurrentAngle = angle;
+}
+
+- (void)setMarqueeAnimation:(NSInteger)marqueeAnimation
+{
+    _marqueeAnimation = marqueeAnimation;
+    self.circularProgressLayer.marqueeAnimation = marqueeAnimation;
+}
+
+- (void)setMarqueeIncrementAngle:(CGFloat)marqueeIncrementAngle
+{
+    _marqueeIncrementAngle = marqueeIncrementAngle;
+    self.circularProgressLayer.marqueeIncrementAngle = marqueeIncrementAngle;
+}
+
+- (void)setMarqueeCurrentAngle:(CGFloat)marqueeCurrentAngle
+{
+    _marqueeCurrentAngle = marqueeCurrentAngle;
+    self.circularProgressLayer.marqueeCurrentAngle = marqueeCurrentAngle;
+    if (self.marqueeAnimation) {
+        [self.layer removeAnimationForKey:@"indeterminateAnimation"];
+        [self.circularProgressLayer removeAnimationForKey:@"progress"];
+        [self.circularProgressLayer setNeedsDisplay];
+    }
 }
 
 #pragma mark - UIAppearance methods
