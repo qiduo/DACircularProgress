@@ -283,7 +283,11 @@
 
 - (void)setThicknessRatio:(CGFloat)thicknessRatio
 {
-    self.circularProgressLayer.thicknessRatio = MIN(MAX(thicknessRatio, 0.f), 1.f);
+    CGFloat ratio = MIN(MAX(thicknessRatio, 0.f), 1.f);
+    if (self.thicknessRatio == ratio) {
+        return;
+    }
+    self.circularProgressLayer.thicknessRatio = ratio;
     [self.circularProgressLayer setNeedsDisplay];
 }
 
