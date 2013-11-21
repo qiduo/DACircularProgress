@@ -140,8 +140,8 @@
     self = [super initWithFrame:CGRectMake(0.0f, 0.0f, 40.0f, 40.0f)];
     if (self) {
         self.marqueeAnimation = 0;
-        self.marqueeIncrementAngle = M_PI / 5;
-        self.marqueeAnimateDuration = 0.1f;
+        self.marqueeIncrementAngle = M_PI * 0.3;
+        self.marqueeAnimateDuration = 0.15f;
         self.marqueeCurrentAngle = 0.f;
     }
     return self;
