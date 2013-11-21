@@ -19,6 +19,7 @@
 @property(nonatomic) CGFloat progress;
 
 @property (nonatomic, assign) CGFloat marqueeCurrentAngle;
+@property (nonatomic, assign) CGFloat marqueeVisibleAngle;
 @property (nonatomic, assign) CGFloat marqueeIncrementAngle;
 @property (nonatomic, assign) NSInteger marqueeAnimation;
 
@@ -60,7 +61,7 @@
         CGContextSetFillColorWithColor(context, self.progressTintColor.CGColor);
         CGMutablePathRef progressPath = CGPathCreateMutable();
         CGPathMoveToPoint(progressPath, NULL, centerPoint.x, centerPoint.y);
-        CGPathAddArc(progressPath, NULL, centerPoint.x, centerPoint.y, radius, self.marqueeCurrentAngle, self.marqueeCurrentAngle + self.marqueeIncrementAngle, NO);
+        CGPathAddArc(progressPath, NULL, centerPoint.x, centerPoint.y, radius, self.marqueeCurrentAngle, self.marqueeCurrentAngle + self.marqueeVisibleAngle, NO);
         CGPathCloseSubpath(progressPath);
         CGContextAddPath(context, progressPath);
         CGContextFillPath(context);
@@ -140,8 +141,9 @@
     self = [super initWithFrame:CGRectMake(0.0f, 0.0f, 40.0f, 40.0f)];
     if (self) {
         self.marqueeAnimation = 0;
-        self.marqueeIncrementAngle = M_PI * 0.3;
-        self.marqueeAnimateDuration = 0.15f;
+        self.marqueeVisibleAngle = 1.88f;   // M_PI * 0.6
+        self.marqueeIncrementAngle = 0.5f;  // M_PI * 0.16f
+        self.marqueeAnimateDuration = 0.05f;
         self.marqueeCurrentAngle = 0.f;
     }
     return self;
@@ -228,6 +230,12 @@
 {
     _marqueeIncrementAngle = marqueeIncrementAngle;
     self.circularProgressLayer.marqueeIncrementAngle = marqueeIncrementAngle;
+}
+
+- (void)setMarqueeVisibleAngle:(CGFloat)marqueeVisibleAngle
+{
+    _marqueeVisibleAngle = marqueeVisibleAngle;
+    self.circularProgressLayer.marqueeVisibleAngle = marqueeVisibleAngle;
 }
 
 - (void)setMarqueeCurrentAngle:(CGFloat)marqueeCurrentAngle

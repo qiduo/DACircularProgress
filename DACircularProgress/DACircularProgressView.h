@@ -21,6 +21,7 @@
 
 @property (nonatomic, assign) NSInteger marqueeAnimation;
 @property (nonatomic, assign) CGFloat marqueeCurrentAngle;
+@property (nonatomic, assign) CGFloat marqueeVisibleAngle;
 @property (nonatomic, assign) CGFloat marqueeIncrementAngle;
 @property (nonatomic, assign) CGFloat marqueeAnimateDuration;
 
