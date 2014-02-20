@@ -196,6 +196,9 @@
 
 - (void)startMarqueeAnimation
 {
+    if (self.marqueeAnimation == 1 || self.updateTimer) {
+        return;
+    }
     self.marqueeAnimation = 1;
     self.updateTimer = [NSTimer scheduledTimerWithTimeInterval:self.marqueeAnimateDuration target:self selector:@selector(updateMarqueeAngle) userInfo:nil repeats:YES];
     [self.updateTimer fire];
@@ -205,6 +208,7 @@
 {
     if (self.updateTimer) {
         [self.updateTimer invalidate];
+        self.updateTimer = nil;
         self.marqueeAnimation = 0;
     }
 }
